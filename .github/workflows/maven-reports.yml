@@ -1,0 +1,44 @@
+name: Maven Reports (Cucumber + Surefire)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-test-and-archive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        # checks code out to $GITHUB_WORKSPACE so the runner can build it [1](https://github.com/actions/checkout)
+
+      - name: ☕ Setup Java 17 and enable Maven cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+        # setup-java can also cache Maven deps to speed up builds [2](https://github.com/actions/setup-java)[3](https://deepwiki.com/actions/setup-java/3.1-dependency-caching)
+
+      - name: 🧪 Build & Test (headless)
+        run: |
+          mvn -Dheadless=true -B clean test
+          # Optional: generate Maven HTML report page if you want
+          mvn -B surefire-report:report || true
+        # GitHub Actions runs your shell step and prints all output to the job log; -B is batch mode. 
+        # Workflow syntax & step behavior per Actions docs. [4](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+
+      - name: 📦 Upload test reports (Surefire, Cucumber, Extent)
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-test-reports
+          path: |
+            target/surefire-reports/**
+            target/cucumber-reports/**
+            target/extent-report/**
+            target/site/surefire-report.html
+          if-no-files-found: warn
+          retention-days: 14
+        # upload-artifact stores files from the runner as downloadable artifacts on the run summary page. [5](https://docs.github.com/en/actions/tutorials/store-and-share-data)[6](https://github.com/actions/upload-artifact)
