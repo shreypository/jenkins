@@ -1,4 +1,0 @@
-steps\LoginSteps.class
-runner\RerunFailedRunner.class
-hooks\Hooks.class
-runner\TestRunner.class
