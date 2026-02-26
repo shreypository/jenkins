@@ -1,0 +1,4 @@
+web\reports\ExtentTestHolder.class
+web\reports\ExtentManager.class
+web\factory\DriverFactory.class
+web\reports\ExtentLogger.class
